@@ -47,6 +47,20 @@
 <!-- Pretendard: 변수형 한글 산세리프 (SIL OFL) -->
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
+<!-- Kakao JavaScript SDK — 메시지 템플릿으로 공유 -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
+        integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
+        crossorigin="anonymous"></script>
+<script>
+  // ⚠ 아래 두 값을 본인 카카오 개발자 콘솔 값으로 교체하세요
+  window.KAKAO_JS_KEY     = '5c44cf330f57eed662644315cf4d1f89';
+  window.KAKAO_TEMPLATE_ID = 1439121;
+
+  if (window.Kakao && !Kakao.isInitialized() && window.KAKAO_JS_KEY && !window.KAKAO_JS_KEY.startsWith('YOUR_')) {
+    try { Kakao.init(window.KAKAO_JS_KEY); } catch(e) { console.warn('[Kakao] init failed:', e); }
+  }
+</script>
+
 <style>
   *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -898,15 +912,19 @@
     border-top: 1px solid var(--line);
   }
   .acc-row1 {
-    display: flex; justify-content: space-between; align-items: baseline;
+    display: flex; justify-content: flex-start; align-items: baseline;
+    gap: 10px;
   }
   .acc-role {
+    order: 0;
     font-family: var(--font-sans-ko);
     font-size: 12.5px; font-weight: 500;
-    color: var(--ink-3); letter-spacing: .25em;
-    padding-left: .25em;
+    color: var(--ink-3); letter-spacing: .18em;
+    padding-left: .18em;
+    flex-shrink: 0;
   }
   .acc-name {
+    order: 1;
     font-family: var(--font-display-ko);
     font-size: 16px; color: var(--ink);
     font-weight: 700; letter-spacing: .1em;
@@ -918,14 +936,14 @@
   .acc-bank-num {
     /* 계좌번호는 또박또박 읽히도록 등폭(monospace) 계열 */
     font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Courier New', 'D2Coding', ui-monospace, monospace;
-    font-size: 16px; color: var(--ink);
-    letter-spacing: .04em; font-weight: 500;
+    font-size: 15px; color: var(--ink-2);
+    letter-spacing: .03em; font-weight: 400;
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
   }
   .acc-bank-num b {
     font-family: var(--font-sans-ko);
-    color: var(--accent); font-weight: 600;
+    color: var(--accent); font-weight: 500;
     font-style: normal; margin-right: 10px;
     letter-spacing: .02em;
   }
@@ -2514,8 +2532,8 @@
         d.style.animationDelay = (Math.random() * 1.2) + 's';
         d.style.animationDuration = (2.8 + Math.random() * 1.4) + 's';
         d.innerHTML = petalSvg(
-          ['#ffd8e0','#f8b9c9','#ffcad4','#f9a8bd'][i % 4],
-          'rgba(180,90,115,.28)'
+          ['#c8e6a0','#a5d68d','#b8dc8f','#d4e5bc'][i % 4],
+          'rgba(90,130,55,.35)'
         );
         petals.appendChild(d);
       }
@@ -2566,11 +2584,15 @@
     }, { once: true });
   })();
 
-  // petalSvg 헬퍼를 인트로에서 재사용할 수 있도록 전역 선언 (아래 또 쓰임)
+  // leafSvg (구 petalSvg) — 연두색 나뭇잎 모양. 뾰족한 타원 + 중앙 잎맥
   function petalSvg(fill, stroke) {
-    return '<svg viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg">' +
-      '<path d="M20 2 C 33 10, 38 28, 20 50 C 2 28, 7 10, 20 2 Z" fill="' + fill + '"/>' +
-      '<path d="M20 4 C 24 18, 22 34, 20 46" stroke="' + stroke + '" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+    return '<svg viewBox="0 0 40 56" xmlns="http://www.w3.org/2000/svg">' +
+      '<path d="M20 2 C 36 14, 36 44, 20 54 C 4 44, 4 14, 20 2 Z" fill="' + fill + '"/>' +
+      '<path d="M20 4 C 21 18, 22 38, 20 52" stroke="' + stroke + '" stroke-width="0.9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M20 16 C 24 17, 27 18, 30 20" stroke="' + stroke + '" stroke-width="0.6" fill="none" opacity=".6"/>' +
+      '<path d="M20 16 C 16 17, 13 18, 10 20" stroke="' + stroke + '" stroke-width="0.6" fill="none" opacity=".6"/>' +
+      '<path d="M20 30 C 24 31, 27 32, 30 34" stroke="' + stroke + '" stroke-width="0.6" fill="none" opacity=".6"/>' +
+      '<path d="M20 30 C 16 31, 13 32, 10 34" stroke="' + stroke + '" stroke-width="0.6" fill="none" opacity=".6"/>' +
     '</svg>';
   }
 
@@ -2845,6 +2867,19 @@
 
   /* === 공유 === */
   document.getElementById('btnShare').addEventListener('click', () => {
+    // 1순위: 카카오 메시지 템플릿 (설정된 경우)
+    if (window.Kakao && Kakao.isInitialized && Kakao.isInitialized()
+        && Kakao.Share && window.KAKAO_TEMPLATE_ID) {
+      try {
+        Kakao.Share.sendCustom({
+          templateId: window.KAKAO_TEMPLATE_ID,
+          // 템플릿에 변수가 있으면 여기에서 전달:
+          // templateArgs: { name: '류형수 ♥ 김규비', date: '2026년 7월 11일' }
+        });
+        return;
+      } catch (e) { console.warn('[Kakao Share] failed:', e); }
+    }
+    // 2순위: 브라우저 기본 공유 시트 (iOS Safari, Android Chrome 등)
     if (navigator.share) {
       navigator.share({
         title: '류형수 ♥ 김규비 결혼합니다',
@@ -3155,18 +3190,18 @@
   /* ===================== 그래픽 · 인터랙션 ===================== */
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // --- 떠다니는 꽃잎 (인라인 SVG — petalSvg는 상단에서 전역 선언됨) ---
+  // --- 떠다니는 나뭇잎 (인라인 SVG — 연두색) ---
   (function spawnFloatingPetals() {
     const container = document.getElementById('bgDecor');
     if (!container || reducedMotion) return;
     const count = Math.min(20, Math.max(12, Math.floor(window.innerWidth / 38)));
     const palette = [
-      { fill: '#ffd8e0', vein: 'rgba(190,100,125,0.28)' },
-      { fill: '#f8b9c9', vein: 'rgba(180,85,115,0.28)' },
-      { fill: '#ffe4ea', vein: 'rgba(200,110,130,0.25)' },
-      { fill: '#f9a8bd', vein: 'rgba(170,75,105,0.30)' },
-      { fill: '#ffcad4', vein: 'rgba(195,105,130,0.28)' },
-      { fill: '#fff0f3', vein: 'rgba(200,120,140,0.22)' },
+      { fill: '#c8e6a0', vein: 'rgba(100,140,60,0.35)' },
+      { fill: '#a5d68d', vein: 'rgba(80,125,50,0.35)' },
+      { fill: '#d4e5bc', vein: 'rgba(120,150,80,0.30)' },
+      { fill: '#b8dc8f', vein: 'rgba(90,130,55,0.35)' },
+      { fill: '#8fc673', vein: 'rgba(70,115,45,0.35)' },
+      { fill: '#e0ecc8', vein: 'rgba(130,155,90,0.28)' },
     ];
     for (let i = 0; i < count; i++) {
       const wrap = document.createElement('div');
@@ -3299,15 +3334,15 @@
     window.addEventListener('scroll', onScroll, { passive: true });
   })();
 
-  // --- 커서/탭 꽃잎 이펙트 (데스크톱: mousemove, 모바일: touch/click 시 번져나옴) ---
+  // --- 커서/탭 나뭇잎 이펙트 (데스크톱: mousemove, 모바일: touch/click 시 번져나옴) — 연두색 ---
   (function initCursorPetals() {
     if (reducedMotion) return;
     const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const cpPalette = [
-      { fill: '#ffd8e0', vein: 'rgba(190,100,125,0.3)' },
-      { fill: '#f9a8bd', vein: 'rgba(170,75,105,0.3)' },
-      { fill: '#ffcad4', vein: 'rgba(195,105,130,0.3)' },
-      { fill: '#fff0f3', vein: 'rgba(200,120,140,0.22)' },
+      { fill: '#c8e6a0', vein: 'rgba(100,140,60,0.35)' },
+      { fill: '#a5d68d', vein: 'rgba(80,125,50,0.35)' },
+      { fill: '#b8dc8f', vein: 'rgba(90,130,55,0.35)' },
+      { fill: '#d4e5bc', vein: 'rgba(120,150,80,0.30)' },
     ];
     function spawnPetal(x, y, extra) {
       const p = document.createElement('div');
