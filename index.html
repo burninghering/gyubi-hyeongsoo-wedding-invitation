@@ -48,17 +48,25 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <!-- Kakao JavaScript SDK — 메시지 템플릿으로 공유 -->
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-        integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"
-        crossorigin="anonymous"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
 <script>
-  // ⚠ 아래 두 값을 본인 카카오 개발자 콘솔 값으로 교체하세요
-  window.KAKAO_JS_KEY     = '5c44cf330f57eed662644315cf4d1f89';
+  window.KAKAO_JS_KEY      = '5c44cf330f57eed662644315cf4d1f89';
   window.KAKAO_TEMPLATE_ID = 1439121;
 
-  if (window.Kakao && !Kakao.isInitialized() && window.KAKAO_JS_KEY && !window.KAKAO_JS_KEY.startsWith('YOUR_')) {
-    try { Kakao.init(window.KAKAO_JS_KEY); } catch(e) { console.warn('[Kakao] init failed:', e); }
+  function initKakao() {
+    if (!window.Kakao) { console.warn('[Kakao] SDK not loaded yet'); return false; }
+    if (Kakao.isInitialized()) return true;
+    try {
+      Kakao.init(window.KAKAO_JS_KEY);
+      console.info('[Kakao] initialized:', Kakao.isInitialized(), 'VERSION:', Kakao.VERSION);
+      return true;
+    } catch (e) {
+      console.error('[Kakao] init failed:', e);
+      return false;
+    }
   }
+  // 즉시 시도 + window load 시 재시도 (SDK 지연 대비)
+  if (!initKakao()) window.addEventListener('load', initKakao);
 </script>
 
 <style>
@@ -2867,19 +2875,31 @@
 
   /* === 공유 === */
   document.getElementById('btnShare').addEventListener('click', () => {
-    // 1순위: 카카오 메시지 템플릿 (설정된 경우)
-    if (window.Kakao && Kakao.isInitialized && Kakao.isInitialized()
-        && Kakao.Share && window.KAKAO_TEMPLATE_ID) {
+    // 디버그: 현재 카카오 SDK 상태
+    const kakaoReady = !!(window.Kakao && Kakao.isInitialized && Kakao.isInitialized() && Kakao.Share);
+    console.info('[Share] Kakao ready?', kakaoReady,
+                 '| has Kakao:', !!window.Kakao,
+                 '| initialized:', window.Kakao && Kakao.isInitialized && Kakao.isInitialized(),
+                 '| templateId:', window.KAKAO_TEMPLATE_ID);
+
+    if (kakaoReady && window.KAKAO_TEMPLATE_ID) {
       try {
         Kakao.Share.sendCustom({
           templateId: window.KAKAO_TEMPLATE_ID,
-          // 템플릿에 변수가 있으면 여기에서 전달:
-          // templateArgs: { name: '류형수 ♥ 김규비', date: '2026년 7월 11일' }
+          // templateArgs: { /* 템플릿에 변수가 있으면 여기에 전달 */ }
         });
         return;
-      } catch (e) { console.warn('[Kakao Share] failed:', e); }
+      } catch (e) {
+        console.error('[Kakao Share] error:', e);
+        showToast('카카오 공유 실패: ' + (e && (e.message || e.code) || '콘솔 확인'), true);
+        return;
+      }
+    } else if (!window.Kakao) {
+      showToast('카카오 SDK 로드 실패 — 네트워크/광고차단 확인', true);
+    } else if (!Kakao.isInitialized || !Kakao.isInitialized()) {
+      showToast('카카오 SDK 초기화 실패 — JS 키/도메인 확인', true);
     }
-    // 2순위: 브라우저 기본 공유 시트 (iOS Safari, Android Chrome 등)
+    // 폴백
     if (navigator.share) {
       navigator.share({
         title: '류형수 ♥ 김규비 결혼합니다',
