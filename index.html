@@ -43,7 +43,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- 상업용 무료(SIL OFL) 한글·영문 웹폰트 -->
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Italianno&family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;300;400;500;600;700&family=Song+Myung&family=Gowun+Dodum&family=Gaegu:wght@400;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Italianno&family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@200;300;400;500;600;700&family=Song+Myung&family=Gowun+Dodum&family=Gaegu:wght@400;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <!-- Pretendard: 변수형 한글 산세리프 (SIL OFL) -->
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
@@ -398,22 +398,22 @@
   }
   .hero-title {
     position: absolute;
-    top: 36px;
+    top: 16%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
-    font-family: 'Cormorant Garamond', 'New York', 'Baskerville', serif;
+    font-family: 'Playfair Display', 'Cormorant Garamond', 'Baskerville', serif;
     font-style: italic;
     font-weight: 500;
     color: #ffffff;
-    font-size: clamp(32px, 10vw, 54px);
-    line-height: 1;
-    letter-spacing: -.01em;
+    font-size: clamp(26px, 8vw, 44px);
+    line-height: 1.02;
+    letter-spacing: -.005em;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
-    text-shadow: 0 2px 12px rgba(0,0,0,.35);
+    gap: 0;
+    text-shadow: 0 2px 14px rgba(0,0,0,.4);
     white-space: nowrap;
     opacity: 0;
     animation: heroTextIn 1.2s cubic-bezier(.2,.7,.2,1) .4s both;
@@ -527,7 +527,7 @@
   .greeting-body {
     margin-top: 36px;
     font-family: var(--font-display-ko);
-    font-size: 15px; color: var(--ink-2);
+    font-size: 18px; color: var(--ink-2);
     line-height: 1.95; font-weight: 400;
     letter-spacing: .015em;
     text-align: center;
@@ -724,7 +724,6 @@
   .date-hero {
     display: flex; flex-direction: column; align-items: center;
     padding-bottom: 22px; margin-bottom: 24px;
-    border-bottom: 1px solid var(--line);
   }
   .date-hero .full-date {
     font-family: var(--font-display-ko);
@@ -861,13 +860,7 @@
     transition: transform .35s cubic-bezier(.22,.61,.36,1);
     display: inline-block;
   }
-  .cd-num.flip { animation: numFlip .75s cubic-bezier(.22,.61,.36,1); }
-  @keyframes numFlip {
-    0%   { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
-    35%  { transform: translateY(-3px) scale(.94); opacity: .45; filter: blur(1.5px); }
-    65%  { transform: translateY(1px) scale(1.02); opacity: .8; filter: blur(0); }
-    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
-  }
+  .cd-num.flip { animation: none; }
   .countdown-msg {
     margin-top: 22px;
     font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
@@ -1654,18 +1647,19 @@
   .fab-top:active { transform: scale(.94); }
   .fab-top { font-size: 13px; font-weight: 500; }
 
-  /* ============ Music Toggle — fab-top 위에 위치 ============ */
+  /* ============ Music Toggle — 우측 상단 고정 ============ */
   .music-btn {
-    position: fixed; right: 18px; bottom: 74px;
+    position: fixed; right: 18px; top: 18px;
     width: 44px; height: 44px; border-radius: 50%;
-    background: var(--paper);
-    border: 1px solid var(--accent-soft);
-    color: var(--accent);
+    background: rgba(255,255,255,.85);
+    border: 1px solid rgba(255,255,255,.6);
+    color: var(--accent-deep);
     cursor: pointer; z-index: 200;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 18px rgba(58,51,43,.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.15);
     transition: all .35s cubic-bezier(.22,.61,.36,1);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .music-btn:hover { background: var(--accent); color: var(--paper); border-color: var(--accent); transform: scale(1.05); }
   .music-btn:active { transform: scale(.94); }
@@ -1681,25 +1675,25 @@
     0%, 100% { box-shadow: 0 6px 18px rgba(176,146,106,.35), 0 0 0 0 rgba(176,146,106,.4); }
     50% { box-shadow: 0 6px 18px rgba(176,146,106,.35), 0 0 0 10px rgba(176,146,106,0); }
   }
-  /* 힌트는 음악 버튼 위쪽 (왼쪽으로 살짝 벗어나도록) */
+  /* 힌트는 음악 버튼 아래쪽 — 화살표 위 */
   .music-hint {
-    position: fixed; right: 18px; bottom: 126px;
+    position: fixed; right: 18px; top: 72px;
     font-family: var(--font-sans-ko); font-size: 12.5px;
     color: var(--ink-2); letter-spacing: .15em; font-weight: 500;
     background: var(--paper); padding: 6px 12px;
     border: 1px solid var(--line);
     box-shadow: 0 6px 16px rgba(58,51,43,.08);
     opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
-    transform: translateY(4px);
+    transform: translateY(-4px);
     z-index: 199;
     white-space: nowrap;
   }
   .music-hint.on { opacity: 1; transform: translateY(0); }
   .music-hint::after {
     content: ''; position: absolute;
-    bottom: -5px; right: 16px; transform: rotate(45deg);
+    top: -5px; right: 16px; transform: rotate(45deg);
     width: 8px; height: 8px;
-    background: var(--paper); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: var(--paper); border-left: 1px solid var(--line); border-top: 1px solid var(--line);
   }
 
   /* ============ Toast ============ */
@@ -2314,9 +2308,9 @@
 <button class="fab-top" id="fabTop" type="button" aria-label="맨 위로">↑</button>
 
 <!-- 배경음악 토글 — 파헬벨 캐논 D장조 (퍼블릭 도메인 클래식 웨딩송) -->
-<audio id="bgm" loop preload="none" crossorigin="anonymous">
-  <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg/Canon_and_Gigue_in_D_major_-_I._Canon.ogg.mp3" type="audio/mpeg">
+<audio id="bgm" loop preload="auto" playsinline>
   <source src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg" type="audio/ogg">
+  <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg/Canon_and_Gigue_in_D_major_-_I._Canon.ogg.mp3" type="audio/mpeg">
 </audio>
 <button class="music-btn" id="musicBtn" type="button" aria-label="배경음악 켜기/끄기">
   <svg class="play-note" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h5V3h-7z"/></svg>
@@ -2333,9 +2327,8 @@
            alt="" loading="eager" fetchpriority="high" referrerpolicy="no-referrer"
            onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(160deg,#2d251c 0%,#1a140f 100%)';">
       <div class="hero-title">
-        <span>our</span>
-        <span>wedding</span>
-        <span>day</span>
+        <span>we are</span>
+        <span>getting married</span>
       </div>
       <div class="hero-meta">
         <div class="hero-couple" id="heroNames">류형수<span class="hero-sep">|</span>김규비</div>
@@ -3723,18 +3716,25 @@
   let musicOn = false;
 
   async function startMusic() {
-    if (!bgm) return;
+    if (!bgm) { showToast('오디오 엘리먼트가 없어요', true); return; }
     try {
-      await bgm.play();
+      bgm.currentTime = bgm.currentTime || 0;
+      const p = bgm.play();
+      if (p && typeof p.then === 'function') await p;
       musicOn = true;
       musicBtn.classList.add('on');
       musicHint.classList.remove('on');
       showToast('잔잔한 음악이 시작됩니다');
     } catch (e) {
-      console.warn('[BGM] play failed:', e);
-      showToast('음악을 재생할 수 없어요', true);
+      console.warn('[BGM] play failed:', e && (e.name + ': ' + e.message) || e);
+      showToast('음악 로드 실패 — 콘솔 확인', true);
     }
   }
+  bgm && bgm.addEventListener('error', (ev) => {
+    const code = bgm.error && bgm.error.code;
+    const codes = { 1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED' };
+    console.error('[BGM] audio error:', code, codes[code] || 'unknown', bgm.currentSrc);
+  });
   function stopMusic() {
     if (!bgm) return;
     bgm.pause();
