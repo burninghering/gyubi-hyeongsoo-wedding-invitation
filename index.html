@@ -69,6 +69,26 @@
   if (!initKakao()) window.addEventListener('load', initKakao);
 </script>
 
+<!-- Hero 높이 잠금 — 로드 시 실제 뷰포트 높이를 기록해, 스크롤 중 주소창이 숨겨져도 리사이즈되지 않게 -->
+<script>
+  (function lockHeroHeight() {
+    const root = document.documentElement;
+    let lastW = window.innerWidth;
+    function set() {
+      root.style.setProperty('--hero-h', window.innerHeight + 'px');
+    }
+    set();
+    // 가로폭이 바뀔 때(회전, 창 크기 변경)만 다시 측정. 스크롤로 인한 세로 변화엔 반응 X.
+    window.addEventListener('resize', () => {
+      if (window.innerWidth !== lastW) {
+        lastW = window.innerWidth;
+        set();
+      }
+    }, { passive: true });
+    window.addEventListener('orientationchange', set);
+  })();
+</script>
+
 <!-- Naver Maps JS SDK — NAVER Cloud Platform Client ID 필요 (사이트 도메인 등록 필수) -->
 <script>window.NAVER_MAP_CLIENT_ID = 'mtjbr1c0cc';</script>
 <script>
@@ -368,8 +388,7 @@
   .hero-photo {
     position: relative;
     width: 100%;
-    height: 100vh;
-    height: 100svh;
+    height: var(--hero-h, 100svh);
     min-height: 560px;
     max-height: 960px;
     overflow: hidden;
