@@ -302,11 +302,11 @@
     position: relative;
     display: block;
     line-height: 1.1;
-    background: linear-gradient(135deg, #8f3d52 0%, #c9798c 50%, #8f3d52 100%);
+    background: linear-gradient(135deg, #c07d95 0%, #eab6c5 50%, #c07d95 100%);
     -webkit-background-clip: text;
             background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0 1px 0 rgba(143,61,82,.08);
+    text-shadow: 0 1px 0 rgba(192,125,149,.08);
   }
   .sec-title-ko.reveal,
   .sec-title-ko.reveal.in {
@@ -1453,22 +1453,23 @@
     50% { box-shadow: 0 6px 18px rgba(176,146,106,.35), 0 0 0 10px rgba(176,146,106,0); }
   }
   .music-hint {
-    position: fixed; right: 70px; top: 28px;
+    position: fixed; right: 18px; top: 74px;
     font-family: var(--font-sans-ko); font-size: 12.5px;
     color: var(--ink-2); letter-spacing: .15em; font-weight: 500;
     background: var(--paper); padding: 6px 12px;
     border: 1px solid var(--line);
     box-shadow: 0 6px 16px rgba(58,51,43,.08);
-    opacity: 0; pointer-events: none; transition: opacity .4s;
+    opacity: 0; pointer-events: none; transition: opacity .4s, transform .4s;
+    transform: translateY(-4px);
     z-index: 199;
     white-space: nowrap;
   }
-  .music-hint.on { opacity: 1; }
+  .music-hint.on { opacity: 1; transform: translateY(0); }
   .music-hint::after {
     content: ''; position: absolute;
-    right: -6px; top: 50%; transform: translateY(-50%) rotate(45deg);
+    top: -5px; right: 16px; transform: rotate(45deg);
     width: 8px; height: 8px;
-    background: var(--paper); border-right: 1px solid var(--line); border-top: 1px solid var(--line);
+    background: var(--paper); border-left: 1px solid var(--line); border-top: 1px solid var(--line);
   }
 
   /* ============ Toast ============ */
@@ -2080,12 +2081,16 @@
 
 <button class="fab-top" id="fabTop" type="button" aria-label="맨 위로">↑</button>
 
-<!-- 배경음악 토글 -->
-<div class="music-hint" id="musicHint">음악을 재생할까요?</div>
+<!-- 배경음악 토글 — 파헬벨 캐논 D장조 (퍼블릭 도메인 클래식 웨딩송) -->
+<audio id="bgm" loop preload="none" crossorigin="anonymous">
+  <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg/Canon_and_Gigue_in_D_major_-_I._Canon.ogg.mp3" type="audio/mpeg">
+  <source src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg" type="audio/ogg">
+</audio>
 <button class="music-btn" id="musicBtn" type="button" aria-label="배경음악 켜기/끄기">
   <svg class="play-note" viewBox="0 0 24 24" fill="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="18" cy="16" r="3" fill="currentColor"/></svg>
   <svg class="pause-bar" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="3.5" height="14" rx="1"/><rect x="14.5" y="5" width="3.5" height="14" rx="1"/></svg>
 </button>
+<div class="music-hint" id="musicHint">음악을 재생할까요?</div>
 
 <div class="page">
 
@@ -3456,118 +3461,31 @@
     });
   })();
 
-  /* ===================== 배경음악 (Web Audio API 생성) =====================
-     파일 없이 브라우저에서 직접 만드는 잔잔한 앰비언트 — 피아노 톤 아르페지오 +
-     낮은 패드. F 메이저(꿈결 같은 따뜻한 분위기). 사용자가 버튼을 눌러야 시작. */
+  /* ===================== 배경음악 (파헬벨 캐논 D장조) ===================== */
   const musicBtn = document.getElementById('musicBtn');
   const musicHint = document.getElementById('musicHint');
-
-  let audioCtx = null;
-  let masterGain = null;
+  const bgm = document.getElementById('bgm');
+  if (bgm) bgm.volume = 0.45;
   let musicOn = false;
-  let loopTimer = null;
-  let activeNodes = [];
 
-  // F 메이저 스케일 기반의 잔잔한 진행
-  // 코드: F – Am – Dm – Bb (대중적 감성의 진행)
-  // 주파수 — 옥타브 배치로 청아하게
-  const chords = [
-    { bass: 87.31,  pad: [174.61, 261.63, 349.23], arp: [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25] }, // F
-    { bass: 110.00, pad: [220.00, 261.63, 329.63], arp: [523.25, 659.25, 880.00, 1046.50, 880.00, 659.25] }, // Am
-    { bass: 73.42,  pad: [146.83, 220.00, 293.66], arp: [440.00, 587.33, 698.46, 880.00, 698.46, 587.33] }, // Dm
-    { bass: 116.54, pad: [233.08, 349.23, 466.16], arp: [466.16, 698.46, 932.33, 1046.50, 932.33, 698.46] }, // Bb
-  ];
-  let chordIdx = 0;
-
-  function ensureAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0;
-    // 리버브 대용: 가벼운 로우패스 필터로 부드럽게
-    const lp = audioCtx.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 4200;
-    lp.Q.value = 0.6;
-    masterGain.connect(lp);
-    lp.connect(audioCtx.destination);
+  async function startMusic() {
+    if (!bgm) return;
+    try {
+      await bgm.play();
+      musicOn = true;
+      musicBtn.classList.add('on');
+      musicHint.classList.remove('on');
+      showToast('잔잔한 음악이 시작됩니다');
+    } catch (e) {
+      console.warn('[BGM] play failed:', e);
+      showToast('음악을 재생할 수 없어요', true);
+    }
   }
-
-  function playTone(freq, start, dur, vol, type='sine') {
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
-    // 약간의 디튠으로 따뜻한 느낌
-    osc.detune.value = (Math.random() - 0.5) * 4;
-    osc.connect(g);
-    g.connect(masterGain);
-    g.gain.setValueAtTime(0, start);
-    g.gain.linearRampToValueAtTime(vol, start + 0.04);
-    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-    osc.start(start);
-    osc.stop(start + dur + 0.05);
-    activeNodes.push(osc, g);
-    // 자동 정리
-    setTimeout(() => {
-      activeNodes = activeNodes.filter(n => n !== osc && n !== g);
-    }, (dur + 0.1) * 1000);
-  }
-
-  function playChord() {
-    if (!musicOn || !audioCtx) return;
-    const now = audioCtx.currentTime;
-    const chord = chords[chordIdx];
-    const barDur = 6.4; // 한 코드 길이(초)
-    const arpStep = 0.45;
-
-    // 베이스 — 부드러운 삼각파 롱 톤
-    playTone(chord.bass, now, barDur, 0.08, 'triangle');
-    playTone(chord.bass * 2, now, barDur, 0.04, 'triangle');
-
-    // 패드 — 사인 3성부 홀드
-    chord.pad.forEach(f => {
-      playTone(f, now, barDur, 0.035, 'sine');
-    });
-
-    // 아르페지오 — 피아노 같은 싱글톤
-    chord.arp.forEach((f, i) => {
-      const t = now + i * arpStep;
-      playTone(f, t, 1.6, 0.11, 'sine');
-      // 옥타브 위로 살짝 더해서 반짝임
-      playTone(f * 2, t, 0.8, 0.02, 'sine');
-    });
-
-    chordIdx = (chordIdx + 1) % chords.length;
-    loopTimer = setTimeout(playChord, barDur * 1000 * 0.92); // 살짝 겹치게
-  }
-
-  function startMusic() {
-    ensureAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    musicOn = true;
-    musicBtn.classList.add('on');
-    musicHint.classList.remove('on');
-    // 서서히 페이드인
-    const t = audioCtx.currentTime;
-    masterGain.gain.cancelScheduledValues(t);
-    masterGain.gain.setValueAtTime(masterGain.gain.value, t);
-    masterGain.gain.linearRampToValueAtTime(0.55, t + 1.2);
-    chordIdx = 0;
-    playChord();
-    showToast('잔잔한 음악이 시작됩니다');
-  }
-
   function stopMusic() {
+    if (!bgm) return;
+    bgm.pause();
     musicOn = false;
     musicBtn.classList.remove('on');
-    if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
-    if (audioCtx && masterGain) {
-      const t = audioCtx.currentTime;
-      masterGain.gain.cancelScheduledValues(t);
-      masterGain.gain.setValueAtTime(masterGain.gain.value, t);
-      masterGain.gain.linearRampToValueAtTime(0.0001, t + 0.9);
-    }
     showToast('음악이 꺼졌어요');
   }
 
@@ -3575,13 +3493,13 @@
     if (musicOn) stopMusic(); else startMusic();
   });
 
-  // 첫 방문자에게 음악 힌트 노출 (3.5초 후 4초간)
+  // 음악 힌트 — 버튼 아래로 안내문구 노출 (첫 방문 시 2.6초 후 ~6초간)
   if (!store.getItem('music_hint_seen')) {
     setTimeout(() => {
       musicHint.classList.add('on');
-      setTimeout(() => musicHint.classList.remove('on'), 4200);
+      setTimeout(() => musicHint.classList.remove('on'), 6000);
       try { store.setItem('music_hint_seen', '1'); } catch(e) {}
-    }, 2800);
+    }, 2600);
   }
 </script>
 </body>
