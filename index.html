@@ -69,6 +69,44 @@
   if (!initKakao()) window.addEventListener('load', initKakao);
 </script>
 
+<!-- Kakao Maps SDK — 지도 임베드 -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1d526764705d69974fe50df667908366&libraries=services&autoload=false"></script>
+<script>
+  function initKakaoMap() {
+    const container = document.getElementById('kakaoMap');
+    if (!container || !window.kakao || !kakao.maps) return;
+    // 노비아갈라웨딩 동촌 대략 좌표 — 지오코더가 성공하면 정확 좌표로 재조정됨
+    const fallback = new kakao.maps.LatLng(35.87444, 128.66134);
+    const map = new kakao.maps.Map(container, { center: fallback, level: 3 });
+    const marker = new kakao.maps.Marker({ position: fallback, map: map });
+    const iw = new kakao.maps.InfoWindow({
+      content: '<div style="padding:6px 10px;font-size:12.5px;color:#3a332b;font-family:\'Noto Serif KR\',serif;white-space:nowrap;">노비아갈라웨딩 동촌 5F 포레아홀</div>',
+      removable: false
+    });
+    iw.open(map, marker);
+    if (kakao.maps.services && kakao.maps.services.Geocoder) {
+      const geo = new kakao.maps.services.Geocoder();
+      geo.addressSearch('대구 동구 동촌로 87', function(result, status) {
+        if (status === kakao.maps.services.Status.OK && result[0]) {
+          const p = new kakao.maps.LatLng(result[0].y, result[0].x);
+          map.setCenter(p);
+          marker.setPosition(p);
+          iw.close();
+          iw.open(map, marker);
+        }
+      });
+    }
+    window.addEventListener('resize', () => { try { map.relayout(); } catch(e){} });
+  }
+  function bootKakaoMap() {
+    if (!window.kakao || !kakao.maps || !kakao.maps.load) { setTimeout(bootKakaoMap, 120); return; }
+    kakao.maps.load(initKakaoMap);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootKakaoMap);
+  } else { bootKakaoMap(); }
+</script>
+
 <style>
   *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -253,39 +291,29 @@
     font-family: var(--font-sans-ko);
     font-weight: 500; letter-spacing: .35em; padding-left: .35em;
   }
-  /* 섹션 타이틀 — 하단 밑줄 draw-in */
+  /* 섹션 타이틀 — 영문 필기체, 중앙 정렬, 양옆 장식선 제거 */
   .sec-title-ko {
     text-align: center;
-    font-family: var(--font-display-ko);
-    font-size: clamp(18px, 5.2vw, 24px); font-weight: 700;
-    color: var(--ink); letter-spacing: .32em; padding-left: .32em;
-    margin-bottom: -50px;
+    font-family: 'Italianno', 'Cormorant Garamond', cursive;
+    font-size: clamp(46px, 11vw, 68px);
+    font-weight: 400;
+    letter-spacing: .01em;
+    margin: 0 auto 28px;
     position: relative;
     display: block;
-    white-space: nowrap;
-    overflow: visible;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #8f3d52 0%, #c9798c 50%, #8f3d52 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 1px 0 rgba(143,61,82,.08);
   }
-  /* reveal 애니메이션에서 translateY 제거 — 제목·디바이더가 물리적으로 움직이지 않아 간격이 항상 고정 */
   .sec-title-ko.reveal,
-  .sec-title-ko.reveal.in,
-  .sec-divider.reveal,
-  .sec-divider.reveal.in {
+  .sec-title-ko.reveal.in {
     transform: none !important;
   }
-  /* 섹션 구분선 — 잎사귀 PNG 일러스트 (2172x724 ≈ 3:1 비율), 길고 크게 */
-  .sec-divider {
-    width: min(440px, 96%);
-    aspect-ratio: 3 / 1;
-    margin: 0 auto 0;
-    position: relative;
-    background-image: url("photos/divider-flower.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-  }
-  .sec-divider .leaf-l,
-  .sec-divider .leaf-r,
-  .sec-divider .diamond { display: none; }
+  /* 남아있을 수 있는 디바이더 요소 안전 제거 */
+  .sec-divider { display: none !important; }
 
   /* ============ HERO (상단 텍스트 카드 + 하단 사진) ============ */
   .hero {
@@ -814,10 +842,11 @@
     margin-bottom: 14px; position: relative;
     overflow: hidden;
   }
-  .map-box iframe {
+  .map-box iframe,
+  .map-box #kakaoMap {
     width: 100%; height: 100%; border: 0; display: block;
-    filter: saturate(.92) contrast(.98);
   }
+  .map-box #kakaoMap { position: absolute; inset: 0; }
   .map-pin {
     position: relative; z-index: 1;
     background: var(--accent); color: var(--paper);
@@ -1604,7 +1633,7 @@
     .hero-info { font-size: clamp(12px, 3.4vw, 15px); }
     .hero-divider { margin: 16px auto; }
     .date-hero .day { font-size: 94px; }
-    .sec-title-ko { font-size: clamp(15px, 4.4vw, 20px); letter-spacing: .22em; padding-left: .22em; }
+    .sec-title-ko { font-size: clamp(42px, 10vw, 56px); margin-bottom: 22px; }
     .footer-couple { font-size: 20px; }
     .cd-num { font-size: 26px; }
     .countdown { gap: 6px; }
@@ -2087,8 +2116,7 @@
 
   <!-- INVITATION -->
   <section class="invitation" id="invitation">
-    <div class="sec-title-ko reveal">초 대 합 니 다</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Invitation</div>
 
     <div class="quote-frame reveal delay-1" data-parallax="-0.05">
       <span class="quote-mark">&ldquo;</span>
@@ -2109,8 +2137,7 @@
 
   <!-- FAMILY -->
   <section class="family" id="family">
-    <div class="sec-title-ko reveal">우 리 결 혼 합 니 다</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Bride &amp; Groom</div>
 
     <div class="family-grid">
       <div class="family-card reveal reveal-left delay-1 tiltable" data-parallax="-0.06">
@@ -2138,8 +2165,7 @@
 
   <!-- DATE -->
   <section class="date-sec" id="date-sec">
-    <div class="sec-title-ko reveal">예 식 안 내</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Ceremony</div>
 
     <div class="date-hero reveal delay-1">
       <div class="full-date" data-parallax="0.04">2026년 7월 11일 토요일</div>
@@ -2177,8 +2203,7 @@
 
   <!-- GALLERY -->
   <section class="gallery" id="gallery">
-    <div class="sec-title-ko reveal">우 리 의 순 간 들</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Gallery</div>
 
     <div class="gallery-grid" data-stagger>
       <div class="g reveal reveal-zoom" data-src="photos/KakaoTalk_20260420_141313263.jpg"    style="--i:0;  background-image:url('photos/KakaoTalk_20260420_141313263.jpg');"></div>
@@ -2201,8 +2226,7 @@
 
   <!-- LOCATION -->
   <section class="location" id="location">
-    <div class="sec-title-ko reveal">오 시 는 길</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Location</div>
 
     <div class="venue-card reveal delay-1 tiltable" data-parallax="-0.07">
       <div class="venue-name-ko">노비아갈라웨딩</div>
@@ -2215,13 +2239,7 @@
     </div>
 
     <div class="map-box reveal delay-2" data-parallax="-0.04">
-      <iframe
-        src="https://www.google.com/maps?q=%EB%85%B8%EB%B9%84%EC%95%84%EA%B0%88%EB%9D%BC%EC%9B%A8%EB%94%A9%20%EB%8C%80%EA%B5%AC%20%EB%8F%99%EA%B5%AC%20%EB%8F%99%EC%B4%8C%EB%A1%9C%2087&hl=ko&z=17&output=embed"
-        width="100%" height="100%"
-        style="border:0; display:block;"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        title="노비아갈라웨딩 지도"></iframe>
+      <div id="kakaoMap" aria-label="노비아갈라웨딩 지도"></div>
     </div>
 
     <div class="map-buttons reveal delay-3">
@@ -2248,8 +2266,7 @@
 
   <!-- ACCOUNTS -->
   <section class="accounts" id="accounts">
-    <div class="sec-title-ko reveal">마 음 전 하 실 곳</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">With Love</div>
 
     <p class="acc-intro reveal delay-1">
       참석이 어려우신 분들을 위해 계좌번호를 기재하였습니다.<br>
@@ -2302,8 +2319,7 @@
 
   <!-- CONTACT -->
   <section class="contact" id="contact">
-    <div class="sec-title-ko reveal">연 락 하 기</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Contact</div>
 
     <div class="contact-list reveal delay-1">
       <div class="contact-row">
@@ -2346,8 +2362,7 @@
 
   <!-- GUESTBOOK -->
   <section class="guestbook" id="guestbook">
-    <div class="sec-title-ko reveal">방 명 록</div>
-    <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
+    <div class="sec-title-ko reveal">Guestbook</div>
 
     <p class="gb-intro reveal delay-1">축하와 덕담 한마디 남겨 주세요.<br>두 사람에게 오래도록 소중한 기억이 됩니다.</p>
 
@@ -2661,14 +2676,6 @@
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add('in');
-        // 제목(.sec-title-ko)이 들어오면 바로 뒤의 디바이더(.sec-divider)도 동시에 등장시켜 간격이 벌어지는 현상 방지
-        if (e.target.classList.contains('sec-title-ko')) {
-          const divider = e.target.nextElementSibling;
-          if (divider && divider.classList.contains('sec-divider')) {
-            divider.classList.add('in');
-            io.unobserve(divider);
-          }
-        }
         io.unobserve(e.target);
       }
     });
@@ -2685,34 +2692,6 @@
       const total = (doc.scrollHeight - doc.clientHeight) || 1;
       const pct = Math.min(100, Math.max(0, (window.scrollY / total) * 100));
       bar.style.width = pct + '%';
-      rafId = null;
-    };
-    window.addEventListener('scroll', () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(update);
-    }, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
-    update();
-  })();
-
-  /* === sec-divider 잎사귀 부드러운 세로 패럴랙스 === */
-  (function initDividerParallax() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const dividers = Array.from(document.querySelectorAll('.sec-divider'));
-    if (!dividers.length) return;
-    let rafId = null;
-    const update = () => {
-      const vh = window.innerHeight;
-      dividers.forEach(d => {
-        const r = d.getBoundingClientRect();
-        // -1 ~ 1 범위로 뷰포트 중앙 대비 위치 정규화
-        const p = Math.max(-1, Math.min(1, ((r.top + r.height / 2) - vh / 2) / (vh / 2)));
-        const shift = -p * 6; // ±6px 이내
-        const l = d.querySelector('.leaf-l');
-        const rg = d.querySelector('.leaf-r');
-        if (l)  l.style.transform  = `translateY(calc(-50% + ${shift}px)) rotate(${-p * 4}deg)`;
-        if (rg) rg.style.transform = `translateY(calc(-50% + ${shift}px)) scaleX(-1) rotate(${p * 4}deg)`;
-      });
       rafId = null;
     };
     window.addEventListener('scroll', () => {
@@ -3287,11 +3266,7 @@
   (function initParallax() {
     if (reducedMotion) return;
 
-    // 섹션 타이틀과 디바이더는 동일 속도 — 스크롤 중 간격이 변하지 않도록 고정
     document.querySelectorAll('.sec-title-ko').forEach(el => {
-      if (!el.hasAttribute('data-parallax')) el.setAttribute('data-parallax', '0.05');
-    });
-    document.querySelectorAll('.sec-divider').forEach(el => {
       if (!el.hasAttribute('data-parallax')) el.setAttribute('data-parallax', '0.05');
     });
     // 갤러리 셀은 같은 속도로 움직여 정렬 유지 (행 단위 동조)
