@@ -447,8 +447,16 @@
 
   /* ============ FAMILY ============ */
   .family { background: var(--bg); text-align: center; }
+  .family-grid {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    justify-content: center;
+  }
   .family-card {
-    padding: 36px 26px 32px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 26px 12px 24px;
     background:
       radial-gradient(ellipse at 50% 0%, var(--pearl-0) 0%, var(--paper) 60%);
     border: 1px solid var(--line);
@@ -461,10 +469,9 @@
     box-shadow: 0 12px 30px rgba(58,51,43,.08);
     border-color: var(--accent-soft);
   }
-  .family-card + .family-card { margin-top: 20px; }
   .family-card::before, .family-card::after {
     content: ''; position: absolute;
-    width: 14px; height: 14px;
+    width: 12px; height: 12px;
     border: 1px solid var(--accent);
   }
   .family-card::before {
@@ -477,34 +484,41 @@
   }
   .family-role {
     font-family: var(--font-sans-ko);
-    font-size: 15px; font-weight: 500;
-    letter-spacing: .45em; color: var(--accent);
-    margin-bottom: 14px; padding-left: .45em;
+    font-size: 13px; font-weight: 500;
+    letter-spacing: .35em; color: var(--accent);
+    margin-bottom: 10px; padding-left: .35em;
   }
   .family-parents {
     font-family: var(--font-serif-ko);
-    font-size: 17px; color: var(--ink-2); line-height: 1.95;
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.75;
   }
   .family-parents .late {
-    font-size: 11.5px; color: var(--ink-3); vertical-align: super; margin-right: 2px;
+    font-size: 10px; color: var(--ink-3); vertical-align: super; margin-right: 1px;
   }
   .family-parents em {
     font-style: normal; color: var(--ink-3);
-    font-size: 14.5px; margin-left: 6px;
+    font-size: 12px; margin-left: 3px;
   }
   .family-name-ko {
-    margin-top: 16px;
+    margin-top: 14px;
     font-family: var(--font-display-ko);
-    font-size: 30px; color: var(--ink);
-    letter-spacing: .5em; padding-left: .5em; font-weight: 700;
-    line-height: 1;
+    font-size: 22px; color: var(--ink);
+    letter-spacing: .35em; padding-left: .35em; font-weight: 700;
+    line-height: 1.1;
   }
   .family-name-ko .rename-note {
     display: block;
     font-family: var(--font-sans-ko);
-    font-size: 17px; letter-spacing: .08em;
-    color: var(--ink-2); margin-top: 14px;
+    font-size: 12px; letter-spacing: .05em;
+    color: var(--ink-2); margin-top: 10px;
     font-weight: 500; padding-left: 0;
+  }
+  @media (max-width: 360px) {
+    .family-grid { gap: 8px; }
+    .family-card { padding: 22px 8px 20px; }
+    .family-parents { font-size: 12.5px; }
+    .family-parents em { font-size: 11px; margin-left: 2px; }
+    .family-name-ko { font-size: 19px; letter-spacing: .3em; padding-left: .3em; }
   }
 
   /* ============ DATE ============ */
@@ -2100,24 +2114,26 @@
     <div class="sec-title-ko reveal">우 리 결 혼 합 니 다</div>
     <div class="sec-divider reveal"><span class="leaf-l" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span><span class="diamond"></span><span class="leaf-r" aria-hidden="true"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f33f.svg" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'"></span></div>
 
-    <div class="family-card reveal reveal-left delay-1 tiltable" data-parallax="-0.06">
-      <div class="family-role">신 랑</div>
-      <div class="family-parents">
-        <span class="late">故</span>류상해 · 박영숙 <em>의 장남</em>
+    <div class="family-grid">
+      <div class="family-card reveal reveal-left delay-1 tiltable" data-parallax="-0.06">
+        <div class="family-role">신 랑</div>
+        <div class="family-parents">
+          <span class="late">故</span>류상해 · 박영숙 <em>의 장남</em>
+        </div>
+        <div class="family-name-ko">
+          류 형 수
+        </div>
       </div>
-      <div class="family-name-ko">
-        류 형 수
-      </div>
-    </div>
 
-    <div class="family-card reveal reveal-right delay-2 tiltable" data-parallax="0.05">
-      <div class="family-role">신 부</div>
-      <div class="family-parents">
-        김영철 · 김종숙 <em>의 차녀</em>
-      </div>
-      <div class="family-name-ko">
-        김 규 비
-        <span class="rename-note">(개명 전 김혜린)</span>
+      <div class="family-card reveal reveal-right delay-2 tiltable" data-parallax="0.05">
+        <div class="family-role">신 부</div>
+        <div class="family-parents">
+          김영철 · 김종숙 <em>의 차녀</em>
+        </div>
+        <div class="family-name-ko">
+          김 규 비
+          <span class="rename-note">(개명 전 김혜린)</span>
+        </div>
       </div>
     </div>
   </section>
