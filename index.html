@@ -358,7 +358,8 @@
   /* ============ HERO (상단 텍스트 카드 + 하단 사진) ============ */
   .hero {
     padding: 0;
-    height: 100vh;
+    height: 100vh;     /* 구형 브라우저 fallback */
+    height: 100svh;    /* 모바일: 주소창 노출/숨김 시에도 높이 고정 */
     min-height: 620px;
     max-height: 900px;
     position: relative;
