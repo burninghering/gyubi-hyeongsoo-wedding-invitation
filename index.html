@@ -3745,7 +3745,7 @@
       musicOn = true;
       musicBtn.classList.add('on');
       musicHint.classList.remove('on');
-      showToast('잔잔한 음악이 시작됩니다');
+      showToast('음악이 재생됩니다.');
     } catch (e) {
       console.warn('[BGM] play failed:', e && (e.name + ': ' + e.message) || e);
       showToast('음악 로드 실패 — 콘솔 확인', true);
@@ -3761,7 +3761,7 @@
     bgm.pause();
     musicOn = false;
     musicBtn.classList.remove('on');
-    showToast('음악이 꺼졌어요');
+    showToast('음악이 꺼졌습니다.');
   }
 
   musicBtn.addEventListener('click', () => {
