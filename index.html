@@ -69,42 +69,82 @@
   if (!initKakao()) window.addEventListener('load', initKakao);
 </script>
 
-<!-- Kakao Maps SDK — 지도 임베드 -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1d526764705d69974fe50df667908366&libraries=services&autoload=false"></script>
+<!-- Kakao Maps SDK — 지도 임베드 (※ JavaScript 키여야 함, REST API 키는 거부됨) -->
+<script>window.KAKAO_MAP_APPKEY = '36b3bdc38fdc68dfc48c5a2d23001bc3';</script>
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=36b3bdc38fdc68dfc48c5a2d23001bc3&libraries=services&autoload=false"
+        onerror="window.__kakaoMapScriptFailed = true; console.error('[KakaoMap] SDK script failed to load — 키가 JavaScript 키가 아니거나 도메인 미등록일 가능성이 큼');"></script>
 <script>
+  function showMapFallback(msg) {
+    const container = document.getElementById('kakaoMap');
+    if (!container) return;
+    container.innerHTML = ''
+      + '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;background:#fffaee;color:#6f645a;font-family:\'Noto Serif KR\',serif;font-size:13px;text-align:center;line-height:1.55;">'
+      + '<div style="font-weight:600;color:#3a332b;">지도를 불러오지 못했어요</div>'
+      + '<div style="font-size:12px;color:#8e7450;">' + (msg || '') + '</div>'
+      + '<a href="https://map.kakao.com/?q=%EB%85%B8%EB%B9%84%EC%95%84%EA%B0%88%EB%9D%BC%EC%9B%A8%EB%94%A9%20%EB%8F%99%EC%B4%8C" target="_blank" rel="noopener" '
+      + 'style="margin-top:4px;padding:8px 16px;border:1px solid #d6bd98;color:#8e7450;text-decoration:none;font-size:12.5px;letter-spacing:.05em;">카카오맵에서 열기</a>'
+      + '</div>';
+  }
   function initKakaoMap() {
     const container = document.getElementById('kakaoMap');
-    if (!container || !window.kakao || !kakao.maps) return;
-    // 노비아갈라웨딩 동촌 대략 좌표 — 지오코더가 성공하면 정확 좌표로 재조정됨
-    const fallback = new kakao.maps.LatLng(35.87444, 128.66134);
-    const map = new kakao.maps.Map(container, { center: fallback, level: 3 });
-    const marker = new kakao.maps.Marker({ position: fallback, map: map });
-    const iw = new kakao.maps.InfoWindow({
-      content: '<div style="padding:6px 10px;font-size:12.5px;color:#3a332b;font-family:\'Noto Serif KR\',serif;white-space:nowrap;">노비아갈라웨딩 동촌 5F 포레아홀</div>',
-      removable: false
-    });
-    iw.open(map, marker);
-    if (kakao.maps.services && kakao.maps.services.Geocoder) {
-      const geo = new kakao.maps.services.Geocoder();
-      geo.addressSearch('대구 동구 동촌로 87', function(result, status) {
-        if (status === kakao.maps.services.Status.OK && result[0]) {
-          const p = new kakao.maps.LatLng(result[0].y, result[0].x);
-          map.setCenter(p);
-          marker.setPosition(p);
-          iw.close();
-          iw.open(map, marker);
-        }
-      });
+    if (!container) return;
+    if (!window.kakao || !kakao.maps) {
+      showMapFallback('SDK 초기화 실패');
+      return;
     }
-    window.addEventListener('resize', () => { try { map.relayout(); } catch(e){} });
+    try {
+      const fallback = new kakao.maps.LatLng(35.87444, 128.66134);
+      const map = new kakao.maps.Map(container, { center: fallback, level: 3 });
+      const marker = new kakao.maps.Marker({ position: fallback, map: map });
+      const iw = new kakao.maps.InfoWindow({
+        content: '<div style="padding:6px 10px;font-size:12.5px;color:#3a332b;font-family:\'Noto Serif KR\',serif;white-space:nowrap;">노비아갈라웨딩 동촌 5F 포레아홀</div>',
+        removable: false
+      });
+      iw.open(map, marker);
+      if (kakao.maps.services && kakao.maps.services.Geocoder) {
+        const geo = new kakao.maps.services.Geocoder();
+        geo.addressSearch('대구 동구 동촌로 87', function(result, status) {
+          if (status === kakao.maps.services.Status.OK && result[0]) {
+            const p = new kakao.maps.LatLng(result[0].y, result[0].x);
+            map.setCenter(p);
+            marker.setPosition(p);
+            iw.close();
+            iw.open(map, marker);
+          }
+        });
+      }
+      window.addEventListener('resize', () => { try { map.relayout(); } catch(e){} });
+      console.info('[KakaoMap] initialized OK');
+    } catch (e) {
+      console.error('[KakaoMap] init error:', e);
+      showMapFallback('앱키/도메인 확인 필요');
+    }
   }
-  function bootKakaoMap() {
-    if (!window.kakao || !kakao.maps || !kakao.maps.load) { setTimeout(bootKakaoMap, 120); return; }
-    kakao.maps.load(initKakaoMap);
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootKakaoMap);
-  } else { bootKakaoMap(); }
+  (function bootKakaoMap() {
+    let tries = 0;
+    const maxTries = 60; // 60 * 100ms = 6초
+    function tick() {
+      if (window.__kakaoMapScriptFailed) {
+        console.error('[KakaoMap] script tag failed — REST API 키는 쓸 수 없음. JavaScript 키로 교체 필요.');
+        showMapFallback('JavaScript 키로 교체 필요 (REST API 키 불가)');
+        return;
+      }
+      if (window.kakao && kakao.maps && kakao.maps.load) {
+        try { kakao.maps.load(initKakaoMap); }
+        catch (e) { console.error('[KakaoMap] load() failed:', e); showMapFallback('SDK load 실패'); }
+        return;
+      }
+      if (++tries >= maxTries) {
+        console.error('[KakaoMap] SDK never initialized within 6s — 키/도메인 확인');
+        showMapFallback('앱키 또는 도메인 등록 확인 필요');
+        return;
+      }
+      setTimeout(tick, 100);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', tick);
+    } else { tick(); }
+  })();
 </script>
 
 <style>
