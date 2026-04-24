@@ -51,7 +51,7 @@
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
 <script>
   window.KAKAO_JS_KEY      = '5c44cf330f57eed662644315cf4d1f89';
-  window.KAKAO_TEMPLATE_ID = 1439121;
+  window.KAKAO_TEMPLATE_ID = 132503;
 
   function initKakao() {
     if (!window.Kakao) { console.warn('[Kakao] SDK not loaded yet'); return false; }
@@ -2891,16 +2891,16 @@
   tickCountdown();
   setInterval(tickCountdown, 1000);
 
-  /* === 공유 (sendScrap: URL만 보내고 OG 태그로 미리보기 자동 생성 — 패킷 사이즈 걱정 없음) === */
+  /* === 공유 (sendCustom: 내가 만든 카카오 메시지 템플릿 사용) === */
   document.getElementById('btnShare').addEventListener('click', () => {
     const kakaoReady = !!(window.Kakao && Kakao.isInitialized && Kakao.isInitialized() && Kakao.Share);
-    if (kakaoReady) {
+    if (kakaoReady && window.KAKAO_TEMPLATE_ID) {
       try {
-        Kakao.Share.sendScrap({ requestUrl: window.location.href });
+        Kakao.Share.sendCustom({ templateId: window.KAKAO_TEMPLATE_ID });
         return;
       } catch (e) {
-        console.error('[Kakao Share] sendScrap error:', e);
-        showToast('카카오 공유 실패 — 주소 복사로 대신 공유해 주세요', true);
+        console.error('[Kakao Share] sendCustom error:', e);
+        showToast('카카오 공유 실패: ' + (e && (e.message || e.code) || '콘솔 확인'), true);
       }
     } else if (!window.Kakao) {
       showToast('카카오 SDK 로드 실패 — 네트워크/광고차단 확인', true);
