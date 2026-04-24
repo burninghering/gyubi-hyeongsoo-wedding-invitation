@@ -2326,10 +2326,12 @@
 
 <button class="fab-top" id="fabTop" type="button" aria-label="맨 위로">↑</button>
 
-<!-- 배경음악 토글 — 파헬벨 캐논 D장조 (퍼블릭 도메인 클래식 웨딩송) -->
+<!-- 배경음악 토글 — 로컬 파일 우선, 원격 fallback -->
 <audio id="bgm" loop preload="auto" playsinline>
+  <source src="photos/bgm.mp3" type="audio/mpeg">
+  <source src="photos/bgm.m4a" type="audio/mp4">
+  <source src="photos/bgm.ogg" type="audio/ogg">
   <source src="https://upload.wikimedia.org/wikipedia/commons/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg" type="audio/ogg">
-  <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/1/1a/Canon_and_Gigue_in_D_major_-_I._Canon.ogg/Canon_and_Gigue_in_D_major_-_I._Canon.ogg.mp3" type="audio/mpeg">
 </audio>
 <button class="music-btn" id="musicBtn" type="button" aria-label="배경음악 켜기/끄기">
   <svg class="play-note" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h5V3h-7z"/></svg>
