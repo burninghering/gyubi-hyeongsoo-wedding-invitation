@@ -449,38 +449,36 @@
   .family { background: var(--bg); text-align: center; }
   .family-grid {
     display: flex;
-    gap: 12px;
+    gap: 0;
     align-items: stretch;
     justify-content: center;
+    position: relative;
+  }
+  .family-grid::before {
+    content: '';
+    position: absolute;
+    top: 8%; bottom: 8%;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(180deg,
+      rgba(184,147,104,0) 0%,
+      rgba(184,147,104,.55) 20%,
+      rgba(184,147,104,.55) 80%,
+      rgba(184,147,104,0) 100%);
+    transform: translateX(-50%);
   }
   .family-card {
     flex: 1 1 0;
     min-width: 0;
-    padding: 26px 12px 24px;
-    background:
-      radial-gradient(ellipse at 50% 0%, var(--pearl-0) 0%, var(--paper) 60%);
-    border: 1px solid var(--line);
+    padding: 12px 16px;
+    background: transparent;
+    border: 0;
     position: relative;
-    transition: transform .4s ease, box-shadow .4s ease;
+    transition: transform .4s ease;
     cursor: default;
   }
   .family-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(58,51,43,.08);
-    border-color: var(--accent-soft);
-  }
-  .family-card::before, .family-card::after {
-    content: ''; position: absolute;
-    width: 12px; height: 12px;
-    border: 1px solid var(--accent);
-  }
-  .family-card::before {
-    top: -1px; left: -1px;
-    border-right: 0; border-bottom: 0;
-  }
-  .family-card::after {
-    bottom: -1px; right: -1px;
-    border-left: 0; border-top: 0;
+    transform: translateY(-2px);
   }
   .family-role {
     font-family: var(--font-sans-ko);
