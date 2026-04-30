@@ -123,7 +123,7 @@
     try {
       // 노비아갈라웨딩 동촌 정확 좌표 (대구 동구 동촌로 87 / 검사동 990-9)
       // 카톡 인앱 브라우저에선 geocoder가 막힐 수 있어 하드코딩 값이 정확해야 함
-      const venue = new naver.maps.LatLng(35.87413, 128.66088);
+      const venue = new naver.maps.LatLng(35.8882625, 128.6519055);
       const map = new naver.maps.Map(container, {
         center: venue,
         zoom: 17,
@@ -136,9 +136,9 @@
         map: map,
         title: '노비아갈라웨딩 동촌',
         icon: {
-          content: '<div style="position:relative;width:40px;height:52px;"><div style="position:absolute;top:0;left:0;width:40px;height:40px;background:#8e3d52;border:3px solid #fff;border-radius:50%;box-shadow:0 3px 10px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-family:Pretendard,sans-serif;font-size:16px;font-weight:800;">♥</div><div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:12px solid #8e3d52;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));"></div></div>',
-          size: new naver.maps.Size(40, 52),
-          anchor: new naver.maps.Point(20, 52)
+          content: '<div style="width:18px;height:18px;background:#8e3d52;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.25);"></div>',
+          size: new naver.maps.Size(18, 18),
+          anchor: new naver.maps.Point(9, 9)
         }
       });
       const iw = new naver.maps.InfoWindow({
